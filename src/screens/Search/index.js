@@ -5,61 +5,63 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { connect } from 'react-redux';
 
-import { Section } from '../../widgets';
-import { Icon } from '../../components';
+import { Section } from '../../widgets'; // Импорт пользовательских виджетов
+import { Icon } from '../../components'; // Импорт пользовательских компонентов
 
 const Index = ({ songs }) => {
-	const { goBack } = useNavigation();
-	const [audios, setAudios] = useState([]);
-	const [search, setSearch] = useState('');
+	const { goBack } = useNavigation(); // Получение функции для навигации назад
+	const [audios, setAudios] = useState([]); // Состояние для хранения результатов поиска
+	const [search, setSearch] = useState(''); // Состояние для хранения текста поиска
 
 	const handleInput = (val) => {
-		const value = val.replace('  ', ' ');
+		const value = val.replace('  ', ' '); // Замена двойных пробелов на одинарные
 		setSearch(value);
-		if (value.length > 3) {
+		if (value.length > 3) { // Поиск начинается, если длина строки поиска больше 3 символов
 			const results = songs.filter((song) => {
 				let regex = new RegExp(value, 'ig');
-				return regex.exec(song?.title) || regex.exec(song?.author);
+				return regex.exec(song?.title) || regex.exec(song?.author); // Поиск совпадений в названии или авторе песни
 			});
 
-			setAudios(results);
+			setAudios(results); // Обновление состояния с результатами поиска
 		} else {
-			setAudios([]);
+			setAudios([]); // Очистка результатов поиска, если длина строки меньше 3 символов
 		}
 	};
 
 	return (
 		<>
-			<StatusBar style="dark" />
-			<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-				<SafeAreaView style={styles.container}>
-					<View style={styles.header}>
-						<View style={styles.input}>
-							<Icon name="search" color="#FFF" />
-							<TextInput style={styles.textInput} onChangeText={handleInput} value={search} returnKeyType="search" placeholder="Search..." />
-						</View>
-						<TouchableOpacity style={styles.btn} onPress={() => goBack()}>
-							<Text style={styles.btnTxt}>Cancel</Text>
-						</TouchableOpacity>
+		<StatusBar style="dark" />
+		<TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+			<SafeAreaView style={styles.container}>
+				<View style={styles.header}>
+					<View style={styles.input}>
+						<Icon name="search" color="#FFF" />
+						<TextInput style={styles.textInput} onChangeText={handleInput} value={search} returnKeyType="search" placeholder="Search..." /> {/* Поле ввода для поиска */}
 					</View>
-					<View style={styles.result}>
-						{audios.length > 0 ? (
-							<Section.MusicList audios={audios} />
+					<TouchableOpacity style={styles.btn} onPress={() => goBack()}>
+						<Text style={styles.btnTxt}>Cancel</Text>
+					</TouchableOpacity>
+				</View>
+				<View style={styles.result}>
+					{audios.length > 0 ? (
+						<Section.MusicList audios={audios} />
 						) : (
-							<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-								<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>Search something...</Text>
-							</View>
-						)}
-					</View>
-				</SafeAreaView>
-			</TouchableWithoutFeedback>
-		</>
-	);
+						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+					<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>Search something...</Text>
+				</View>
+				)}
+			</View>
+		</SafeAreaView>
+		</TouchableWithoutFeedback>
+</>
+);
 };
 
+// Подключение компонента к Redux store для получения списка песен
 const mapStateToProps = (state) => ({ songs: state?.player?.songs });
-export default connect(mapStateToProps, null)(memo(Index));
+export default connect(mapStateToProps, null)(memo(Index)); // Использование memo для оптимизации производительности
 
+// Стили для компонента
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

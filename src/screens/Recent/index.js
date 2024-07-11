@@ -4,12 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAssets } from 'expo-asset';
 import { connect } from 'react-redux';
 
-import { Header, Section, Drawer } from '../../widgets';
-import { Icon } from '../../components';
+import { Header, Section, Drawer } from '../../widgets'; // Импорт пользовательских виджетов
+import { Icon } from '../../components'; // Импорт пользовательских компонентов
 
 const Index = ({ songs }) => {
-	const [assets] = useAssets([require('../../assets/icons/hamburger.png'), require('../../assets/icons/search.png')]);
-	const [drawer, setDrawer] = useState(false);
+	const [assets] = useAssets([require('../../assets/icons/hamburger.png'), require('../../assets/icons/search.png')]); // Загрузка иконок
+	const [drawer, setDrawer] = useState(false); // Состояние для управления Drawer (боковым меню)
 
 	return (
 		<Drawer active={drawer} current="recent" onItemPressed={() => setDrawer(false)}>
@@ -18,11 +18,11 @@ const Index = ({ songs }) => {
 					options={{
 						left: {
 							children: drawer ? <Icon name="x" color="#C4C4C4" /> : <Image source={require('../../assets/icons/hamburger.png')} resizeMode="contain" />,
-							onPress: () => setDrawer(!drawer),
+							onPress: () => setDrawer(!drawer), // Переключение состояния Drawer при нажатии
 						},
 						middle: {
 							show: true,
-							text: 'Recently Played',
+							text: 'Recently Played', // Заголовок в центре
 						},
 						right: {
 							show: false,
@@ -31,10 +31,10 @@ const Index = ({ songs }) => {
 				/>
 				<View style={styles.sections}>
 					{songs && songs.length > 0 ? (
-						<Section.MusicList audios={songs} indicator={false} useIndex={true} />
+						<Section.MusicList audios={songs} indicator={false} useIndex={true} /> // Отображение списка недавно проигрывавшихся песен
 					) : (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>No recent yet!</Text>
+							<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>No recent yet!</Text> // Сообщение, если песен нет
 						</View>
 					)}
 				</View>
@@ -43,9 +43,11 @@ const Index = ({ songs }) => {
 	);
 };
 
+// Подключение компонента к Redux store для получения списка недавно проигрывавшихся песен
 const mapStateToProps = (state) => ({ songs: state?.storage?.recents });
 export default connect(mapStateToProps, null)(Index);
 
+// Стили для компонента
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

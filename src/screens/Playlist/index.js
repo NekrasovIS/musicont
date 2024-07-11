@@ -10,9 +10,11 @@ import { Header, Section } from '../../widgets';
 import { Storage } from '../../helpers';
 import { DISPATCHES } from '../../constants';
 
+// Основной компонент для отображения плейлиста
 const Index = ({ songs, playlists, dispatch, route: { params }, navigation: { goBack } }) => {
-	const [playlist, setPlaylist] = useState({});
+	const [playlist, setPlaylist] = useState({}); // Состояние для текущего плейлиста
 
+	// Функция для удаления плейлиста
 	const deletePlaylist = () => {
 		return new Promise(async (resolve) => {
 			const newPlaylists = playlists.filter((i) => i?.name.toLowerCase() !== playlist?.name.toLowerCase());
@@ -29,6 +31,7 @@ const Index = ({ songs, playlists, dispatch, route: { params }, navigation: { go
 		});
 	};
 
+	// Обработчик для подтверждения удаления плейлиста
 	const handleDelete = () => {
 		Alert.alert('Trash', `Are you sure you want to delete "${playlist?.name}" playlist?`, [
 			{
@@ -45,6 +48,7 @@ const Index = ({ songs, playlists, dispatch, route: { params }, navigation: { go
 		]);
 	};
 
+	// Эффект для установки текущего плейлиста при изменении параметров маршрута
 	useEffect(() => {
 		setPlaylist(playlists[params?.playlistIndex || 0]);
 	}, [params]);
@@ -92,10 +96,12 @@ const Index = ({ songs, playlists, dispatch, route: { params }, navigation: { go
 	);
 };
 
+// Подключение компонента к Redux
 const mapStateToProps = (state) => ({ songs: state?.player.songs, playlists: state?.storage?.playlists });
 const mapDispatchToProps = (dispatch) => ({ dispatch });
 export default connect(mapStateToProps, mapDispatchToProps)(Index);
 
+// Стили компонента
 const styles = StyleSheet.create({
 	header: {
 		width: Dimensions.get('screen').width,

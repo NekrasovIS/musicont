@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 import { DISPATCHES, SCREENS } from '../constants';
 import { Storage } from '../helpers';
-import { Ads } from '../components';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -36,7 +35,6 @@ const Loading = ({ songs, dispatch, navigation: { replace } }) => {
 				});
 			}
 
-			await Ads.interstitialAds();
 			resolve();
 		});
 	};

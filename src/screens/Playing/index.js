@@ -12,9 +12,13 @@ import { Audio } from '../../hooks';
 import { DISPATCHES } from '../../constants';
 import { millisToMin, Storage } from '../../helpers';
 
+// Основной компонент плеера
 const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack } }) => {
+	// Анимационное состояние для кнопки "стоп"
 	const stopBtnAnim = useRef(new Animated.Value(song?.soundObj?.isPlaying ? 1 : 0.3)).current;
+	// Состояние для отслеживания избранного
 	const [isFav, setIsFav] = useState(false);
+	// Состояние для управления действиями плеера
 	const [actions, setActions] = useState({
 		prev: false,
 		play: false,
@@ -22,6 +26,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		next: false,
 	});
 
+	// Проверка, является ли текущая песня избранной
 	const verifyFav = async () => {
 		const favs = await Storage.get('favourites', true);
 		if (favs !== null) {
@@ -41,6 +46,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		});
 	};
 
+	// Обработчик для добавления/удаления из избранного
 	const handleFav = async () => {
 		const currentIndex = songs.findIndex((i) => i.id === song?.detail?.id);
 		const favs = await Storage.get('favourites', true);
@@ -60,6 +66,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		verifyFav();
 	};
 
+	// Обновление состояния действий плеера
 	const _e = (arg = {}) => {
 		setActions({
 			...actions,
@@ -67,6 +74,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		});
 	};
 
+	// Добавление текущей песни в недавно воспроизведенные
 	const addToRecentlyPlayed = async (index) => {
 		const recents = await Storage.get('recents', true);
 		if (recents === null) {
@@ -85,6 +93,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		});
 	};
 
+	// Обновление статуса воспроизведения
 	const onPlaybackStatusUpdate = (playbackStatus) => {
 		dispatch({
 			type: DISPATCHES.SET_CURRENT_SONG,
@@ -98,6 +107,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		}
 	};
 
+	// Конфигурация и воспроизведение песни
 	const configAndPlay = (shouldPlay = false) => {
 		if (!song?.soundObj?.isLoaded) {
 			return Audio.configAndPlay(
@@ -117,6 +127,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		}
 	};
 
+	// Обработчик для воспроизведения и паузы
 	const handlePlayAndPause = async () => {
 		_e({ play: true });
 
@@ -152,6 +163,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		}
 	};
 
+	// Обработчик для остановки воспроизведения
 	const handleStop = async (after = () => {}) => {
 		_e({ stop: true });
 
@@ -173,6 +185,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		_e({ stop: false });
 	};
 
+	// Обработчик для воспроизведения предыдущей песни
 	const handlePrev = async () => {
 		_e({ prev: true });
 
@@ -199,6 +212,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		});
 	};
 
+	// Обработчик для воспроизведения следующей песни
 	async function handleNext() {
 		_e({ next: true });
 
@@ -225,6 +239,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		});
 	}
 
+	// Обработчик для перемотки песни
 	const handleSeek = (millis) => {
 		return Audio.seek(
 			song?.playback,
@@ -239,6 +254,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		})(onPlaybackStatusUpdate);
 	};
 
+	// Эффект для управления анимацией кнопки "стоп" в зависимости от состояния воспроизведения
 	useEffect(() => {
 		if (song?.soundObj?.isPlaying) {
 			Animated.timing(stopBtnAnim, {
@@ -255,6 +271,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		}
 	}, [song]);
 
+	// Эффект для инициализации аудио и воспроизведения песни при первом рендере компонента
 	useEffect(() => {
 		(async () => {
 			await Audio.init();
@@ -262,10 +279,12 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		})();
 	}, []);
 
+	// Эффект для проверки избранного при изменении текущей песни
 	useEffect(() => {
 		verifyFav();
 	}, [song?.detail?.id]);
 
+	// Эффект для воспроизведения новой песни при изменении параметров маршрута
 	useEffect(() => {
 		if (params?.forcePlay && params?.song?.uri !== song?.detail?.uri) {
 			handleStop(() => {
@@ -287,6 +306,7 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 		}
 	}, [params?.forcePlay, params?.song, params?.index]);
 
+	// Рендер компонента
 	return (
 		<>
 			<StatusBar style="light" />
@@ -353,10 +373,12 @@ const Index = ({ song, songs, dispatch, route: { params }, navigation: { goBack 
 	);
 };
 
+// Подключение компонента к Redux
 const mapStateToProps = (state) => ({ song: state?.player?.currentSong, songs: state?.player?.songs });
 const mapDispatchToProps = (dispatch) => ({ dispatch });
 export default connect(mapStateToProps, mapDispatchToProps)(memo(Index));
 
+// Стили компонента
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

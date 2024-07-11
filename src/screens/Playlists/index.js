@@ -4,13 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAssets } from 'expo-asset';
 import { connect } from 'react-redux';
 
-import { Header, Drawer } from '../../widgets';
-import { Card, Icon } from '../../components';
-import { SCREENS } from '../../constants';
+import { Header, Drawer } from '../../widgets'; // Импортируем пользовательские виджеты Header и Drawer
+import { Card, Icon } from '../../components'; // Импортируем пользовательские компоненты Card и Icon
+import { SCREENS } from '../../constants'; // Импортируем константы экранов
 
 const Index = ({ songs, playlists, navigation }) => {
+	// Используем useAssets для загрузки иконок
 	const [assets] = useAssets([require('../../assets/icons/hamburger.png'), require('../../assets/icons/search.png')]);
-	const [drawer, setDrawer] = useState(false);
+	const [drawer, setDrawer] = useState(false); // Состояние для управления Drawer
 
 	return (
 		<Drawer active={drawer} current="playlist" onItemPressed={() => setDrawer(false)}>
@@ -57,9 +58,11 @@ const Index = ({ songs, playlists, navigation }) => {
 	);
 };
 
+// Подключаем компонент к Redux store
 const mapStateToProps = (state) => ({ songs: state?.player.songs, playlists: state?.storage?.playlists });
 export default connect(mapStateToProps, null)(Index);
 
+// Стили для компонента
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,

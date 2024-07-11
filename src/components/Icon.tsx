@@ -15,7 +15,7 @@ import {
 	SimpleLineIcons,
 	Zocial,
 } from '@expo/vector-icons';
-
+// Интерфейс IC определяет типы пропсов, которые принимает компонент Icon.
 interface IC {
 	family:
 		| 'AntDesign'
@@ -37,7 +37,7 @@ interface IC {
 	color: string;
 	props: object;
 }
-
+// Компонент Icon принимает несколько props: family, name, size, color и дополнительные props.
 const Icon = ({ family = 'Feather', name = 'home', size = 24, color = '#000', props }: IC) => (
 	<>
 		{family === 'AntDesign' && <AntDesign name={name} size={size} color={color} {...props} />}

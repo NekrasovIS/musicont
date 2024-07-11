@@ -1,123 +1,62 @@
-// TODO: Make it better
-import { Audio } from 'expo-av';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const init = async (defaultConfigs = {}) => {
+/**
+ * Сохраняет данные в AsyncStorage.
+ * @param {string} key - Ключ для хранения данных.
+ * @param {*} value - Значение для хранения.
+ * @param {boolean} isJSON - Флаг, указывающий, является ли значение JSON-объектом.
+ */
+export const store = async (key, value, isJSON = false) => {
 	try {
-		const configs = {
-			allowsRecordingIOS: false,
-			interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-			playsInSilentModeIOS: true,
-			interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-			shouldDuckAndroid: true,
-			staysActiveInBackground: true,
-			playThroughEarpieceAndroid: false,
-			...defaultConfigs,
-		};
-
-		await Audio.setAudioModeAsync(configs);
-	} catch (error) {
-		console.log(`[Audio Error][init]: ${error?.message}`);
+		// Преобразует значение в строку JSON, если isJSON = true, иначе сохраняет как есть.
+		await AsyncStorage.setItem(`@${key}`, !isJSON ? value : JSON.stringify(value));
+	} catch (e) {
+		// Логирует ошибку в консоль, если не удалось сохранить данные.
+		console.log(`[AsyncStorage Error][store]: ${e?.message}`);
 	}
 };
 
-export const playbackStatusUpdate =
-	(playbackObject) =>
-	(next = (status) => console.log({ status })) => {
-		if ('setOnPlaybackStatusUpdate' in playbackObject) {
-			playbackObject.setOnPlaybackStatusUpdate(next);
-		}
-	};
+/**
+ * Получает данные из AsyncStorage.
+ * @param {string} key - Ключ для получения данных.
+ * @param {boolean} isJSON - Флаг, указывающий, является ли значение JSON-объектом.
+ * @returns {*} - Возвращает значение, сохраненное под указанным ключом, или null, если значение не найдено.
+ */
+export const get = async (key, isJSON = false) => {
+	try {
+		// Получает значение по ключу из AsyncStorage.
+		const value = await AsyncStorage.getItem(`@${key}`);
+		// Если значение найдено, возвращает его, преобразуя из строки JSON, если isJSON = true.
+		return value != null ? (!isJSON ? value : JSON.parse(value)) : null;
+	} catch (e) {
+		// Логирует ошибку в консоль, если не удалось получить данные.
+		console.log(`[AsyncStorage Error][get]: ${e?.message}`);
+	}
+};
 
-export const play =
-	(playbackObject, uri, shouldPlay = true) =>
-	(next = () => {}) =>
-	(onPlaybackStatusUpdate = () => {}) => {
-		(async () => {
-			try {
-				const soundObj = await playbackObject?.loadAsync({ uri }, { shouldPlay });
-				playbackStatusUpdate(playbackObject)(onPlaybackStatusUpdate);
-				next(soundObj);
-			} catch (error) {
-				console.log(`[Audio Error][play]: ${error?.message}`);
-			}
-		})();
-	};
+/**
+ * Удаляет данные из AsyncStorage.
+ * @param {string} key - Ключ для удаления данных.
+ */
+export const remove = async (key) => {
+	try {
+		// Удаляет значение по ключу из AsyncStorage.
+		await AsyncStorage.removeItem(`@${key}`);
+	} catch (e) {
+		// Логирует ошибку в консоль, если не удалось удалить данные.
+		console.log(`[AsyncStorage Error][remove]: ${e?.message}`);
+	}
+};
 
-export const configAndPlay =
-	(uri, shouldPlay = true) =>
-	(next = () => {}) =>
-	(onPlaybackStatusUpdate = () => {}) => {
-		(async () => {
-			try {
-				const playbackObject = new Audio.Sound();
-				play(
-					playbackObject,
-					uri,
-					shouldPlay
-				)((soundObj) => {
-					next(playbackObject, soundObj);
-				})(onPlaybackStatusUpdate);
-			} catch (error) {
-				console.log(`[Audio Error][configAndPlay]: ${error?.message}`);
-			}
-		})();
-	};
-
-export const pause =
-	(playbackObject) =>
-	(next = () => {}) => {
-		(async () => {
-			try {
-				const soundObj = await playbackObject?.pauseAsync();
-				next(soundObj);
-			} catch (error) {
-				console.log(`[Audio Error][pause]: ${error?.message}`);
-			}
-		})();
-	};
-
-export const resume =
-	(playbackObject) =>
-	(next = () => {}) => {
-		(async () => {
-			try {
-				const soundObj = await playbackObject?.playAsync();
-				next(soundObj);
-			} catch (error) {
-				console.log(`[Audio Error][resume]: ${error?.message}`);
-			}
-		})();
-	};
-
-export const seek =
-	(playbackObject, millis) =>
-	(next = () => {}) =>
-	(onPlaybackStatusUpdate = () => {}) => {
-		(async () => {
-			try {
-				const soundObj = await playbackObject?.playFromPositionAsync(millis);
-				playbackStatusUpdate(playbackObject)(onPlaybackStatusUpdate);
-				next(soundObj);
-			} catch (error) {
-				console.log(`[Audio Error][seek]: ${error?.message}`);
-			}
-		})();
-	};
-
-export const stop =
-	(playbackObject) =>
-	(next = () => {}) => {
-		(async () => {
-			try {
-				if ('stopAsync' in playbackObject && 'unloadAsync' in playbackObject) {
-					const soundObj = await playbackObject?.stopAsync();
-					await playbackObject?.unloadAsync();
-					next(soundObj);
-				} else {
-					next(null);
-				}
-			} catch (error) {
-				console.log(`[Audio Error][stop]: ${error?.message}`);
-			}
-		})();
-	};
+/**
+ * Очищает все данные в AsyncStorage.
+ */
+export const clear = async () => {
+	try {
+		// Очищает все данные из AsyncStorage.
+		await AsyncStorage.clear();
+	} catch (e) {
+		// Логирует ошибку в консоль, если не удалось очистить данные.
+		console.log(`[AsyncStorage Error][clear]: ${e?.message}`);
+	}
+};
