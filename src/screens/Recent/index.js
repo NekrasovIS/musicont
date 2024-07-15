@@ -18,11 +18,11 @@ const Index = ({ songs }) => {
 					options={{
 						left: {
 							children: drawer ? <Icon name="x" color="#C4C4C4" /> : <Image source={require('../../assets/icons/hamburger.png')} resizeMode="contain" />,
-							onPress: () => setDrawer(!drawer), // Переключение состояния Drawer при нажатии
+							onPress: () => setDrawer(!drawer),
 						},
 						middle: {
 							show: true,
-							text: 'Recently Played', // Заголовок в центре
+							text: 'Recently Played', 
 						},
 						right: {
 							show: false,
@@ -31,10 +31,10 @@ const Index = ({ songs }) => {
 				/>
 				<View style={styles.sections}>
 					{songs && songs.length > 0 ? (
-						<Section.MusicList audios={songs} indicator={false} useIndex={true} /> // Отображение списка недавно проигрывавшихся песен
+						<Section.MusicList audios={songs} indicator={false} useIndex={true} />
 					) : (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-							<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>No recent yet!</Text> // Сообщение, если песен нет
+							<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>No recent yet!</Text>
 						</View>
 					)}
 				</View>

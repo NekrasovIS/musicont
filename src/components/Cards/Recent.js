@@ -2,10 +2,10 @@ import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 // Компонент Played принимает несколько props: style, imageURL, title, author и onPress.
+/* Добавляем размытую фоновую картинку */
 const Played = ({ style = {}, imageURL, title = 'Song Title', author = `Artist Name`, onPress = () => {} }) => (
 	<TouchableOpacity style={[styles.container, style]} onPress={onPress}>
 		<View>
-			{/* Добавляем размытую фоновую картинку */}
 			<Image
 				style={{
 					width: 130,
@@ -21,15 +21,13 @@ const Played = ({ style = {}, imageURL, title = 'Song Title', author = `Artist N
 				borderRadius={10}
 				blurRadius={100}
 			/>
-			{/* Обложка трека */}
+
 			<Image style={styles.coverArt} source={{ uri: imageURL }} resizeMode="cover" borderRadius={10} />
 		</View>
 		<View style={styles.content}>
-			{/* Заголовок трека */}
 			<Text style={styles.title} numberOfLines={1}>
 				{title}
 			</Text>
-			{/* Имя автора */}
 			<Text style={styles.author} numberOfLines={1}>
 				{author}
 			</Text>

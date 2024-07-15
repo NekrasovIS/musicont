@@ -2,7 +2,9 @@ import React from 'react';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// Компонент Playlist принимает несколько props: style, overlayStyle, imageURL, title, subtitle и onPress.
+/* Компонент Playlist принимает несколько props: style, overlayStyle, imageURL, title, subtitle и onPress.
+LinearGradient для наложения градиента на изображение.
+TouchableOpacity для обработки нажатий на карточку. */
 const Playlist = ({ style = {}, overlayStyle = {}, imageURL, title = 'Title', subtitle = `Subtitle`, onPress = () => {} }) => (
 	<ImageBackground
 		style={[styles.coverArt, style]}
@@ -12,12 +14,8 @@ const Playlist = ({ style = {}, overlayStyle = {}, imageURL, title = 'Title', su
 		source={{ uri: imageURL }}
 		resizeMode="cover"
 	>
-		{/* LinearGradient для наложения градиента на изображение. */}
 		<LinearGradient style={[styles.overlay, overlayStyle]} colors={['rgba(0, 0, 0, 1)', 'transparent']} start={[0, 1]} end={[0, 0]} />
-
-		{/* TouchableOpacity для обработки нажатий на карточку. */}
 		<TouchableOpacity style={[styles.overlay, overlayStyle]} onPress={onPress}>
-			{/* Контейнер для содержимого карточки. */}
 			<View style={styles.content}>
 				<Text style={styles.title} numberOfLines={1}>
 					{title}

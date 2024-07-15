@@ -36,7 +36,7 @@ const Index = ({ songs }) => {
 				<View style={styles.header}>
 					<View style={styles.input}>
 						<Icon name="search" color="#FFF" />
-						<TextInput style={styles.textInput} onChangeText={handleInput} value={search} returnKeyType="search" placeholder="Search..." /> {/* Поле ввода для поиска */}
+						<TextInput style={styles.textInput} onChangeText={handleInput} value={search} returnKeyType="search" placeholder="Search..." /> 
 					</View>
 					<TouchableOpacity style={styles.btn} onPress={() => goBack()}>
 						<Text style={styles.btnTxt}>Cancel</Text>

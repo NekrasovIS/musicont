@@ -14,7 +14,7 @@ const Index = ({ songs }) => {
 	return (
 		<Drawer active={drawer} current="favourite" onItemPressed={() => setDrawer(false)}>
 			<SafeAreaView style={styles.container}>
-				<Header // Заголовок экрана
+				<Header
 					options={{
 						left: {
 							children: drawer ? <Icon name="x" color="#C4C4C4" /> : <Image source={require('../../assets/icons/hamburger.png')} resizeMode="contain" />,
@@ -22,16 +22,16 @@ const Index = ({ songs }) => {
 						},
 						middle: {
 							show: true,
-							text: 'My Favourites', // Текст в центре заголовка
+							text: 'My Favourites',
 						},
 						right: {
-							show: false, // Не отображать правую часть заголовка
+							show: false,
 						},
 					}}
 				/>
 				<View style={styles.sections}>
-					{songs && songs.length > 0 ? ( // Проверка наличия избранных песен
-						<Section.MusicList audios={songs} indicator={false} useIndex={true} /> // Вывод списка песен
+					{songs && songs.length > 0 ? (
+						<Section.MusicList audios={songs} indicator={false} useIndex={true} />
 					) : (
 						<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 							<Text style={{ fontSize: 24, fontWeight: 'bold', color: 'rgba(0, 0, 0, .3)' }}>No favourite yet!</Text> // Сообщение об отсутствии избранных песен

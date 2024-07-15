@@ -7,30 +7,29 @@ import { LinearGradient } from 'expo-linear-gradient';
 const Explore = ({ style = {}, imageURL, title = 'Explore', subtitle = `Listen to what's trending now`, onPress = () => {} }) => {
 	// useAssets загружает изображения, используемые в компоненте.
 	const [assets] = useAssets([require('../../assets/explore/default.png'), require('../../assets/icons/play.png')]);
-
+/* Основной контейнер компонента, позволяющий применять внешний стиль через props.
+ImageBackground для отображения фона карточки. 
+LinearGradient для добавления градиентного наложения на изображение.
+Блок для заголовка и подзаголовка.
+TouchableOpacity для кнопки воспроизведения, которая вызывает onPress при нажатии. */
 	return (
-		// Основной контейнер компонента, позволяющий применять внешний стиль через props.
 		<View style={[styles.container, style]}>
-			{/* ImageBackground для отображения фона карточки. */}
 			<ImageBackground
 				style={styles.card}
 				imageStyle={styles.imageStyle}
 				source={imageURL ? { uri: imageURL } : require('../../assets/explore/default.png')}
 				resizeMode="cover"
 			>
-				{/* LinearGradient для добавления градиентного наложения на изображение. */}
 				<LinearGradient
 					style={styles.overlay}
 					colors={['rgba(0, 0, 0, 1)', 'transparent']}
 					start={[0, 0]}
 					end={[1, 0]}
 				/>
-				{/* Блок для заголовка и подзаголовка. */}
 				<View>
 					<Text style={styles.title}>{title}</Text>
 					<Text style={styles.subtitle}>{subtitle}</Text>
 				</View>
-				{/* TouchableOpacity для кнопки воспроизведения, которая вызывает onPress при нажатии. */}
 				<TouchableOpacity style={styles.btn} onPress={onPress}>
 					<Image
 						style={{ width: 40, height: 40 }}

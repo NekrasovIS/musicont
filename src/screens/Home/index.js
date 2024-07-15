@@ -13,7 +13,7 @@ const Index = () => {
 	return (
 		<Drawer active={drawer} current="home" onItemPressed={() => setDrawer(false)}>
 			<SafeAreaView style={styles.container}>
-				<Header // Заголовок экрана
+				<Header
 					options={{
 						left: {
 							children: drawer ? <Icon name="x" color="#C4C4C4" /> : <Image source={require('../../assets/icons/hamburger.png')} resizeMode="contain" />,
@@ -22,11 +22,11 @@ const Index = () => {
 					}}
 				/>
 				<View style={styles.sections}>
-					<Section.Explore /> // Виджет "Исследовать"
-					<Section.Recent style={{ marginTop: 30 }} /> // Виджет "Недавнее"
-					<Section.Playlist style={{ marginTop: 30 }} /> // Виджет "Плейлист"
+					<Section.Explore /> 
+					<Section.Recent style={{ marginTop: 30 }} /> 
+					<Section.Playlist style={{ marginTop: 30 }} />
 				</View>
-				<Footer /> // Нижняя панель
+				<Footer /> 
 			</SafeAreaView>
 		</Drawer>
 	);
