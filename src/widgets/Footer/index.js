@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, memo } from 'react';
+import React, { useEffect, useRef, useState, memo, useCallback } from 'react';
 import { Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 import { connect } from 'react-redux';
@@ -21,31 +21,29 @@ const Index = ({ song, songs, dispatch }) => {
 		next: false,
 	});
 
-	const _e = (arg = {}) => {
-		setActions({
-			...actions,
-			...arg,
-		});
-	};
+	// Функция для обновления состояния кнопок управления воспроизведением
+	const updateActions = useCallback((updates) => {
+		setActions((prevActions) => ({
+			...prevActions,
+			...updates,
+		}));
+	}, []);
 
+	// Функция для добавления песни в недавно прослушанные
 	const addToRecentlyPlayed = async (index) => {
 		const recents = await Storage.get('recents', true);
-		if (recents === null) {
-			await Storage.store('recents', [index], true);
-		} else {
-			const filtered = recents.filter((i) => i !== index).filter((i) => recents.indexOf(i) < 9);
-			filtered.unshift(index);
-			await Storage.store('recents', filtered, true);
-		}
+		const updatedRecents = recents ? [index, ...recents.filter(i => i !== index).slice(0, 9)] : [index];
+		await Storage.store('recents', updatedRecents, true);
 
 		dispatch({
 			type: DISPATCHES.STORAGE,
 			payload: {
-				recents: await Storage.get('recents', true),
+				recents: updatedRecents,
 			},
 		});
 	};
 
+	// Обновление статуса воспроизведения и переход к следующей песне, если текущая закончилась
 	const onPlaybackStatusUpdate = (playbackStatus) => {
 		dispatch({
 			type: DISPATCHES.SET_CURRENT_SONG,
@@ -59,12 +57,10 @@ const Index = ({ song, songs, dispatch }) => {
 		}
 	};
 
-	const configAndPlay = (shouldPlay = false) => {
+	// Функция конфигурации и воспроизведения песни
+	const configAndPlay = useCallback(async (shouldPlay = false) => {
 		if (!song?.soundObj?.isLoaded) {
-			return Audio.configAndPlay(
-				song?.detail?.uri,
-				shouldPlay
-			)((playback, soundObj) => {
+			Audio.configAndPlay(song?.detail?.uri, shouldPlay)((playback, soundObj) => {
 				dispatch({
 					type: DISPATCHES.SET_CURRENT_SONG,
 					payload: {
@@ -72,21 +68,22 @@ const Index = ({ song, songs, dispatch }) => {
 						soundObj,
 					},
 				});
-
 				addToRecentlyPlayed(songs.findIndex((i) => i.id === song?.detail?.id));
 			})(onPlaybackStatusUpdate);
 		}
-	};
+	}, [song, songs, dispatch, onPlaybackStatusUpdate, addToRecentlyPlayed]);
 
+	// Обработка нажатий на кнопку воспроизведения/паузы
 	const handlePlayAndPause = async () => {
-		_e({ play: true });
+		updateActions({ play: true });
 
 		if (!song?.soundObj?.isLoaded) {
-			configAndPlay(true);
-			_e({ play: true });
+			await configAndPlay(true);
+			updateActions({ play: true });
+			return;
 		}
 
-		if (song?.soundObj?.isLoaded && song?.soundObj?.isPlaying) {
+		if (song?.soundObj?.isPlaying) {
 			return Audio.pause(song?.playback)((soundObj) => {
 				dispatch({
 					type: DISPATCHES.SET_CURRENT_SONG,
@@ -94,58 +91,32 @@ const Index = ({ song, songs, dispatch }) => {
 						soundObj,
 					},
 				});
-
-				_e({ play: false });
+				updateActions({ play: false });
 			});
 		}
 
-		if (song?.soundObj?.isLoaded && !song?.soundObj?.isPlaying) {
-			return Audio.resume(song?.playback)((soundObj) => {
-				dispatch({
-					type: DISPATCHES.SET_CURRENT_SONG,
-					payload: {
-						soundObj,
-					},
-				});
-
-				_e({ play: false });
+		return Audio.resume(song?.playback)((soundObj) => {
+			dispatch({
+				type: DISPATCHES.SET_CURRENT_SONG,
+				payload: {
+					soundObj,
+				},
 			});
-		}
+			updateActions({ play: false });
+		});
 	};
 
-	const handleStop = async (after = () => {}) => {
-		_e({ stop: true });
 
-		if (song?.soundObj?.isLoaded) {
-			return Audio.stop(song?.playback)(() => {
-				dispatch({
-					type: DISPATCHES.SET_CURRENT_SONG,
-					payload: {
-						soundObj: {},
-					},
-				});
-
-				after();
-				_e({ stop: false });
-			});
-		}
-
-		after();
-		_e({ stop: false });
-	};
-
+	// Обработка нажатия на кнопку перехода к предыдущей песне
 	const handlePrev = async () => {
-		_e({ prev: true });
+		updateActions({ prev: true });
 
 		const currentIndex = songs.findIndex((i) => i.id === song?.detail?.id);
 		const prevIndex = currentIndex === 0 ? songs.length - 1 : currentIndex - 1;
 		const prevSong = songs[prevIndex];
 
-		return handleStop(() => {
-			Audio.play(
-				song?.playback,
-				prevSong?.uri
-			)((soundObj) => {
+		await handleStop(() => {
+			Audio.play(song?.playback, prevSong?.uri)((soundObj) => {
 				dispatch({
 					type: DISPATCHES.SET_CURRENT_SONG,
 					payload: {
@@ -153,25 +124,22 @@ const Index = ({ song, songs, dispatch }) => {
 						detail: prevSong,
 					},
 				});
-
 				addToRecentlyPlayed(prevIndex);
-				_e({ prev: false });
+				updateActions({ prev: false });
 			})(onPlaybackStatusUpdate);
 		});
 	};
 
-	async function handleNext() {
-		_e({ next: true });
+	// Обработка нажатия на кнопку перехода к следующей песне
+	const handleNext = async () => {
+		updateActions({ next: true });
 
 		const currentIndex = songs.findIndex((i) => i.id === song?.detail?.id);
 		const nextIndex = currentIndex === songs.length - 1 ? 0 : currentIndex + 1;
 		const nextSong = songs[nextIndex];
 
-		return handleStop(() => {
-			Audio.play(
-				song?.playback,
-				nextSong?.uri
-			)((soundObj) => {
+		await handleStop(() => {
+			Audio.play(song?.playback, nextSong?.uri)((soundObj) => {
 				dispatch({
 					type: DISPATCHES.SET_CURRENT_SONG,
 					payload: {
@@ -179,45 +147,25 @@ const Index = ({ song, songs, dispatch }) => {
 						detail: nextSong,
 					},
 				});
-
 				addToRecentlyPlayed(nextIndex);
-				_e({ next: false });
+				updateActions({ next: false });
 			})(onPlaybackStatusUpdate);
 		});
-	}
+	};
 
+	// Инициализация аудио при первом рендере
 	useEffect(() => {
-		if (song?.soundObj?.isPlaying) {
-			Animated.timing(stopBtnAnim, {
-				toValue: 1,
-				duration: 1000,
-				useNativeDriver: true,
-			}).start();
-		} else {
-			Animated.timing(stopBtnAnim, {
-				toValue: 0.3,
-				duration: 1000,
-				useNativeDriver: true,
-			}).start();
-		}
-	}, [song]);
-
-	useEffect(() => {
-		(async () => {
+		const initializeAudio = async () => {
 			await Audio.init();
 			configAndPlay();
-		})();
-	}, []);
+		};
+		initializeAudio();
+	}, [configAndPlay]);
 
 	return (
 		<View style={styles.container}>
 			<View style={styles.tracker}>
-				<View
-					style={{
-						...StyleSheet.absoluteFill,
-						zIndex: 99,
-					}}
-				/>
+				<View style={{ ...StyleSheet.absoluteFill, zIndex: 99 }} />
 				<Slider
 					minimumValue={0}
 					maximumValue={song?.detail?.durationMillis}
@@ -260,14 +208,11 @@ const Index = ({ song, songs, dispatch }) => {
 				<TouchableOpacity style={styles.btn} onPress={handlePrev} disabled={actions?.prev}>
 					<Icon name="skip-back" color="#C4C4C4" />
 				</TouchableOpacity>
+
 				<TouchableOpacity style={styles.btn} onPress={handlePlayAndPause} disabled={actions?.play}>
 					<Icon name={song?.soundObj?.isPlaying ? `pause` : `play`} color={song?.soundObj?.isPlaying ? `#C07037` : `#C4C4C4`} />
 				</TouchableOpacity>
-				<TouchableOpacity style={styles.btn} onPress={() => (song?.soundObj?.isPlaying ? handleStop(() => {}) : () => {})} disabled={actions?.stop}>
-					<Animated.View style={{ opacity: stopBtnAnim }}>
-						<Icon family="Ionicons" name="stop-outline" color="#C4C4C4" />
-					</Animated.View>
-				</TouchableOpacity>
+
 				<TouchableOpacity style={styles.btn} onPress={handleNext} disabled={actions?.next}>
 					<Icon name="skip-forward" color="#C4C4C4" />
 				</TouchableOpacity>
@@ -276,8 +221,12 @@ const Index = ({ song, songs, dispatch }) => {
 	);
 };
 
+// Подключение к Redux хранилищу для получения состояния текущей песни и списка песен
 const mapStateToProps = (state) => ({ song: state?.player?.currentSong, songs: state?.player?.songs });
+
+// Подключение диспетчера для отправки действий
 const mapDispatchToProps = (dispatch) => ({ dispatch });
+
 export default connect(mapStateToProps, mapDispatchToProps)(memo(Index));
 
 const styles = StyleSheet.create({

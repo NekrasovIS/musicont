@@ -3,17 +3,19 @@ import { Alert, Dimensions, Modal, StyleSheet, Text, TextInput, TouchableOpacity
 import * as Animatable from 'react-native-animatable';
 import { connect } from 'react-redux';
 import { DISPATCHES } from '../../constants';
-
 import { Storage } from '../../helpers';
 
+// Определение размеров экрана для стилей
 const { width, height } = Dimensions.get('screen');
 
+// Компонент Playlist для отображения и управления плейлистами
 const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => {}, songIndex = 0 }) => {
 	const [playlists, setPlaylists] = useState([]);
 	const [newPlaylist, setNewPlaylist] = useState(false);
 	const [input, setInput] = useState('');
 	const [animation, setAnimation] = useState('slideInUp');
 
+	// Закрытие модального окна и очистка состояния
 	const closeModal = () => {
 		setNewPlaylist(false);
 		setInput('');
@@ -25,10 +27,12 @@ const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => 
 		}, 300);
 	};
 
+	// Обработка ввода пользователя
 	const handleInput = (val) => {
 		setInput(val.replace('  ', ' '));
 	};
 
+	// Добавление песни в существующий плейлист или удаление из него
 	const addToPlaylist = async (name) => {
 		let lists = await Storage.get('playlists', true);
 
@@ -56,13 +60,14 @@ const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => 
 		});
 	};
 
+	// Создание нового плейлиста
 	const createPlaylist = async () => {
 		const playlist = {
 			name: input || 'Default',
 			songs: [songIndex],
 		};
 
-		if (playlists.filter((i) => i?.name.toLowerCase() === playlist?.name.toLowerCase()).length >= 1) {
+		if (playlists.some((i) => i?.name.toLowerCase() === playlist?.name.toLowerCase())) {
 			return Alert.alert('Playlist', 'Playlist already exists!', [
 				{
 					text: 'Close',
@@ -91,12 +96,14 @@ const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => 
 		setInput('');
 	};
 
+	// Эффект для обновления анимации при изменении видимости
 	useEffect(() => {
 		if (visible) {
 			setAnimation('slideInUp');
 		}
 	}, [visible]);
 
+	// Эффект для обновления списка плейлистов при изменении хранилища
 	useEffect(() => {
 		if (storedPlaylists !== null) {
 			setPlaylists(storedPlaylists);
@@ -111,26 +118,35 @@ const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => 
 				onPress={closeModal}
 			/>
 			<Animatable.View style={styles.modal} animation={animation} duration={300}>
-				<Text style={{ color: 'rgba(0, 0, 0, .5)', fontSize: 24, fontWeight: 'bold', letterSpacing: 1, marginBottom: 20 }}>Playlists</Text>
+				<Text style={styles.title}>Playlists</Text>
 				{playlists.map(({ name, songs }, key) => (
 					<TouchableOpacity key={key} style={styles.item} onPress={() => addToPlaylist(name)} activeOpacity={0.6}>
-						<Text style={{ color: 'rgba(0, 0, 0, .5)', fontSize: 16, letterSpacing: 1 }}>{`${name} (${songs.length || 0})`}</Text>
+						<Text style={styles.itemText}>{`${name} (${songs.length || 0})`}</Text>
 					</TouchableOpacity>
 				))}
 
 				{!newPlaylist && (
 					<TouchableOpacity style={styles.item} onPress={() => setNewPlaylist(true)} activeOpacity={0.6}>
-						<Text style={{ color: 'rgba(0, 0, 0, .5)', fontSize: 16, letterSpacing: 1 }}>Create playlist</Text>
+						<Text style={styles.itemText}>Create playlist</Text>
 					</TouchableOpacity>
 				)}
 
 				{newPlaylist && (
-					<View style={{ flexDirection: 'row', marginBottom: 10 }}>
+					<View style={styles.newPlaylistContainer}>
 						<View style={styles.input}>
-							<TextInput style={styles.textInput} onChangeText={handleInput} value={input} placeholder="Playlist Name : " maxLength={25} />
+							<TextInput
+								style={styles.textInput}
+								onChangeText={handleInput}
+								value={input}
+								placeholder="Playlist Name : "
+								maxLength={25}
+							/>
 						</View>
-						<TouchableOpacity style={styles.btn} onPress={input.length >= 3 ? createPlaylist : () => {}}>
-							<Text style={[styles.btnTxt, { color: '#C07037' }, input.length < 3 && { opacity: 0.5 }]}>Create</Text>
+						<TouchableOpacity
+							style={styles.btn}
+							onPress={input.length >= 3 ? createPlaylist : () => {}}
+						>
+							<Text style={[styles.btnTxt, { color: '#C07037' }, input.length < 3 && { opacity: 0.5 }]}>Создать</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
 							style={styles.btn}
@@ -139,7 +155,7 @@ const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => 
 								setInput('');
 							}}
 						>
-							<Text style={styles.btnTxt}>Cancel</Text>
+							<Text style={styles.btnTxt}>Отмена</Text>
 						</TouchableOpacity>
 					</View>
 				)}
@@ -148,10 +164,12 @@ const Playlist = ({ storedPlaylists, dispatch, visible = false, onClose = () => 
 	);
 };
 
+// Соединение компонента с Redux
 const mapStateToProps = (state) => ({ storedPlaylists: state?.storage?.playlists });
 const mapDispatchToProps = (dispatch) => ({ dispatch });
 export default connect(mapStateToProps, mapDispatchToProps)(Playlist);
 
+// Стили для компонента
 const styles = StyleSheet.create({
 	modal: {
 		position: 'absolute',
@@ -165,12 +183,24 @@ const styles = StyleSheet.create({
 		borderTopRightRadius: 15,
 		zIndex: 9999,
 	},
+	title: {
+		color: 'rgba(0, 0, 0, .5)',
+		fontSize: 24,
+		fontWeight: 'bold',
+		letterSpacing: 1,
+		marginBottom: 20,
+	},
 	item: {
 		paddingVertical: 10,
 		paddingHorizontal: 15,
 		backgroundColor: '#E6E6E6',
 		marginBottom: 10,
 		borderRadius: 5,
+	},
+	itemText: {
+		color: 'rgba(0, 0, 0, .5)',
+		fontSize: 16,
+		letterSpacing: 1,
 	},
 	input: {
 		flex: 1,
@@ -195,5 +225,9 @@ const styles = StyleSheet.create({
 		fontSize: 18,
 		fontWeight: 'bold',
 		letterSpacing: 1,
+	},
+	newPlaylistContainer: {
+		flexDirection: 'row',
+		marginBottom: 10,
 	},
 });

@@ -1,5 +1,7 @@
-import app from './app';
-import player from './player';
-import storage from './storage';
+// Импортируем редукторы из отдельных файлов
+import app from './app'; // Редуктор для управления состоянием приложения
+import player from './player'; // Редуктор для управления состоянием плеера
+import storage from './storage'; // Редуктор для управления состоянием хранилища
 
+// Экспортируем все редукторы из одного файла
 export { app, player, storage };

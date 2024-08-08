@@ -2,48 +2,53 @@ import React, { useEffect, useState } from 'react';
 import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 
+// Получение размеров экрана для использования в стиле
 const { width, height } = Dimensions.get('screen');
 
+// Компонент MoreOptions для отображения модального окна с дополнительными опциями
 const MoreOptions = ({
-	visible = false,
-	onClose = () => {},
-	title = 'Song Title',
-	moreOptions = [
-		{
-			text: 'Play',
-			onPress: () => alert('Play song'),
-		},
-		{
-			text: 'Add to favorite',
-			onPress: () => alert('Add song to favorite'),
-		},
-		{
-			text: 'Add to playlist',
-			onPress: () => alert('Add song to playlist'),
-		},
-	],
-}) => {
-	const [animation, setAnimation] = useState('slideInUp');
+						 visible = false, // Флаг видимости модального окна
+						 onClose = () => {}, // Функция для закрытия модального окна
+						 title = 'Song Title', // Заголовок модального окна
+						 moreOptions = [ // Массив опций, отображаемых в модальном окне
+							 {
+								 text: 'Play',
+								 onPress: () => alert('Play song'), // Действие при нажатии на опцию
+							 },
+							 {
+								 text: 'Add to favorite',
+								 onPress: () => alert('Add song to favorite'),
+							 },
+							 {
+								 text: 'Add to playlist',
+								 onPress: () => alert('Add song to playlist'),
+							 },
+						 ],
+					 }) => {
+	const [animation, setAnimation] = useState('slideInUp'); // Состояние для управления анимацией модального окна
 
+	// Функция для закрытия модального окна
 	const closeModal = () => {
-		setAnimation('fadeOutDown');
+		setAnimation('fadeOutDown'); // Установка анимации закрытия
 
+		// Таймер для вызова функции onClose после завершения анимации
 		const x = setTimeout(() => {
 			onClose(false);
 			clearTimeout(x);
-		}, 300);
+		}, 300); // Длительность таймера соответствует длительности анимации
 	};
 
+	// Эффект для обновления анимации при изменении видимости
 	useEffect(() => {
 		if (visible) {
-			setAnimation('slideInUp');
+			setAnimation('slideInUp'); // Установка анимации появления
 		}
 	}, [visible]);
 
 	return (
 		<Modal visible={visible} transparent animationType="fade">
 			<TouchableOpacity
-				style={[{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, width, height, backgroundColor: 'rgba(0, 0, 0, .5)', zIndex: 999 }]}
+				style={[{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, width, height, backgroundColor: 'rgba(0, 0, 0, .5)', zIndex: 999 }]} // Полупрозрачный фон
 				activeOpacity={1}
 				onPress={closeModal}
 			/>
@@ -61,6 +66,7 @@ const MoreOptions = ({
 
 export default MoreOptions;
 
+// Стили для модального окна
 const styles = StyleSheet.create({
 	modal: {
 		position: 'absolute',
@@ -72,6 +78,6 @@ const styles = StyleSheet.create({
 		backgroundColor: '#FFF',
 		borderTopLeftRadius: 15,
 		borderTopRightRadius: 15,
-		zIndex: 9999,
+		zIndex: 9999, // Установка zIndex для правильного отображения поверх других компонентов
 	},
 });

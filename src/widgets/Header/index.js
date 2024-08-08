@@ -4,8 +4,10 @@ import { useNavigation } from '@react-navigation/core';
 import { useAssets } from 'expo-asset';
 import { SCREENS } from '../../constants';
 
+// Компонент для отображения иконки гамбургера (меню)
 const LeftChildren = () => <Image source={require('../../assets/icons/hamburger.png')} resizeMode="contain" />;
 
+// Компонент для отображения текста в середине заголовка
 const MiddleChildren = ({ text }) => (
 	<Text
 		style={{
@@ -17,31 +19,35 @@ const MiddleChildren = ({ text }) => (
 	</Text>
 );
 
+// Компонент для отображения иконки поиска
 const RightChildren = () => <Image source={require('../../assets/icons/search.png')} resizeMode="contain" />;
 
+// Основной компонент заголовка
 const Index = ({ style = { marginTop: 10, marginHorizontal: 10 }, options = {} }) => {
-	const { navigate } = useNavigation();
+	const { navigate } = useNavigation(); // Получение навигационных методов
 	const [assets] = useAssets([require('../../assets/icons/hamburger.png'), require('../../assets/icons/search.png')]);
+
+	// Конфигурация для различных частей заголовка
 	const config = {
 		left: {
 			style: {},
 			show: true,
-			children: <LeftChildren />,
-			onPress: () => {},
+			children: <LeftChildren />, // Компонент для левой части заголовка
+			onPress: () => {}, // Функция для обработки нажатия (можно настроить в options)
 			...options?.left,
 		},
 		middle: {
 			style: {},
 			show: false,
-			text: null,
-			children: <MiddleChildren text="Title" />,
+			text: null, // Текст для средней части заголовка
+			children: <MiddleChildren text="Title" />, // Компонент для средней части заголовка
 			...options?.middle,
 		},
 		right: {
 			style: {},
 			show: true,
-			children: <RightChildren />,
-			onPress: () => navigate(SCREENS.SEARCH),
+			children: <RightChildren />, // Компонент для правой части заголовка
+			onPress: () => navigate(SCREENS.SEARCH), // Функция для обработки нажатия (переход на экран поиска)
 			...options?.right,
 		},
 	};

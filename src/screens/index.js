@@ -2,12 +2,18 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { Loading, Search, Playing, Home, Songs, Favourite, Recent, Playlists, Playlist } from './screens';
-import { SCREENS } from '../constants';
+import { Loading, Search, Playing, Home, Songs, Favourite, Recent, Playlists, Playlist } from './screens'; // Импорт экранов
+import { SCREENS } from '../constants'; // Импорт констант для имен экранов
 
+// Создание стека навигации
 const Stack = createStackNavigator();
+
+// Компонент для настройки стека навигации
 const StackNavigation = () => (
-	<Stack.Navigator headerMode="none" initialRouteName={SCREENS.LOADING}>
+	<Stack.Navigator
+		headerMode="none" // Отключение заголовков по умолчанию
+		initialRouteName={SCREENS.LOADING} // Установка начального экрана
+	>
 		<Stack.Screen name={SCREENS.LOADING} component={Loading} />
 		<Stack.Screen name={SCREENS.SEARCH} component={Search} />
 		<Stack.Screen name={SCREENS.PLAYING} component={Playing} />
@@ -20,6 +26,7 @@ const StackNavigation = () => (
 	</Stack.Navigator>
 );
 
+// Основной компонент приложения, оборачивающий навигацию
 const Index = () => {
 	return (
 		<NavigationContainer>
@@ -28,4 +35,5 @@ const Index = () => {
 	);
 };
 
+// Экспорт компонента Index для использования в приложении
 export default Index;

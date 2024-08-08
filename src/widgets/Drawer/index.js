@@ -13,41 +13,48 @@ import { SCREENS } from '../../constants';
 
 const menus = [
 	{ name: 'home', title: 'Home', screen: SCREENS.HOME },
-	{ name: 'songs', title: 'songs', screen: SCREENS.SONGS },
+	{ name: 'songs', title: 'Songs', screen: SCREENS.SONGS },
 	{ name: 'favourite', title: 'Favourite', screen: SCREENS.FAVOURITE },
 	{ name: 'recent', title: 'Recently Played', screen: SCREENS.RECENT },
-	{ name: 'playlist', title: 'Playlist', screen: SCREENS.PLAYLISTS },
+	{ name: 'playlist', title: 'Playlists', screen: SCREENS.PLAYLISTS },
 ];
 
 const Index = ({
-	appName,
-	active = false,
-	current = '',
-	onItemPressed = () => {},
-	bottomBtn = {
-		text: 'Source Code',
-		onPress: () => Linking.openURL('https://github.com/jsxclan/musicont'),
-	},
-	children,
-}) => {
+				   appName,
+				   active = false,
+				   current = '',
+				   onItemPressed = () => {},
+				   bottomBtn = {
+					   text: 'Source Code',
+					   onPress: () => Linking.openURL('https://github.com/jsxclan/musicont'),
+				   },
+				   children,
+			   }) => {
 	const { navigate } = useNavigation();
 	useAssets([require('../../assets/logo.png')]);
-	const screenScale = useRef(new Animated.Value(1)).current;
-	const screenLeft = useRef(new Animated.Value(0)).current;
-	const screenRadius = useRef(new Animated.Value(0)).current;
 
-	const anim = (anim, toValue) => {
-		return Animated.timing(anim, {
-			toValue,
-			duration: 1000,
-			useNativeDriver: true,
-		});
+	const animationRefs = {
+		screenScale: useRef(new Animated.Value(1)).current,
+		screenLeft: useRef(new Animated.Value(0)).current,
+		screenRadius: useRef(new Animated.Value(0)).current,
+	};
+
+	const anim = (animations) => {
+		Animated.parallel(animations.map(({ anim, toValue }) =>
+			Animated.timing(anim, {
+				toValue,
+				duration: 1000,
+				useNativeDriver: true,
+			})
+		)).start();
 	};
 
 	useEffect(() => {
-		anim(screenScale, active ? 0.8 : 1).start();
-		anim(screenLeft, active ? Dimensions.get('screen').width * 0.6 : 0).start();
-		anim(screenRadius, active ? 15 : 0).start();
+		anim([
+			{ anim: animationRefs.screenScale, toValue: active ? 0.8 : 1 },
+			{ anim: animationRefs.screenLeft, toValue: active ? Dimensions.get('screen').width * 0.6 : 0 },
+			{ anim: animationRefs.screenRadius, toValue: active ? 15 : 0 },
+		]);
 	}, [active]);
 
 	return (
@@ -73,7 +80,9 @@ const Index = ({
 										}, 850);
 									}}
 								>
-									<Text style={[styles.itemTxt, current.toLowerCase() === menu.name && styles.itemTxtActive]}>{menu.title}</Text>
+									<Text style={[styles.itemTxt, current.toLowerCase() === menu.name && styles.itemTxtActive]}>
+										{menu.title}
+									</Text>
 								</TouchableOpacity>
 							</Animatable.View>
 						))}
@@ -83,8 +92,8 @@ const Index = ({
 							<Text style={styles.bottomBtnTxt}>{bottomBtn?.text}</Text>
 						</TouchableOpacity>
 						<Animatable.View animation="pulse" easing="ease-out" iterationCount="infinite">
-							<TouchableOpacity style={styles.bottomBtn} activeOpacity={0.7} onPress={() => Linking.openURL('https://ko-fi.com/jsxclan')}>
-								<Text style={styles.bottomBtnTxt}>Buy me a coffee ☕</Text>
+							<TouchableOpacity style={styles.bottomBtn} activeOpacity={0.7} onPress={() => Linking.openURL('')}>
+								<Text style={styles.bottomBtnTxt}>Здесь могла быть ваша реклама ☕</Text>
 							</TouchableOpacity>
 						</Animatable.View>
 					</Animatable.View>
@@ -97,14 +106,10 @@ const Index = ({
 						styles.screen,
 						{
 							transform: [
-								{
-									scale: screenScale,
-								},
-								{
-									translateX: screenLeft,
-								},
+								{ scale: animationRefs.screenScale },
+								{ translateX: animationRefs.screenLeft },
 							],
-							borderRadius: screenRadius,
+							borderRadius: animationRefs.screenRadius,
 						},
 					]}
 				>
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
 	},
 	item: {
 		justifyContent: 'center',
-		width: null,
+		width: '100%',
 		paddingVertical: 10,
 		paddingHorizontal: 20,
 		borderRadius: 6,
@@ -173,7 +178,7 @@ const styles = StyleSheet.create({
 	bottomBtn: {
 		justifyContent: 'center',
 		alignItems: 'center',
-		width: null,
+		width: '100%',
 		backgroundColor: 'rgba(0, 0, 0, .4)',
 		paddingVertical: 10,
 		borderRadius: 6,
@@ -191,15 +196,11 @@ const styles = StyleSheet.create({
 		zIndex: 9999,
 	},
 	screenBackDrop: {
-		...StyleSheet.absoluteFill,
+		...StyleSheet.absoluteFillObject,
 		backgroundColor: 'rgba(0, 0, 0, .15)',
 		transform: [
-			{
-				scale: 0.7,
-			},
-			{
-				translateX: Dimensions.get('screen').width * 0.58,
-			},
+			{ scale: 0.7 },
+			{ translateX: Dimensions.get('screen').width * 0.58 },
 		],
 		borderRadius: 15,
 	},

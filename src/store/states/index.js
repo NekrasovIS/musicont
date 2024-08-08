@@ -1,5 +1,7 @@
-import app from './app';
-import player from './player';
-import storage from './storage';
+// Импорт редюсеров из отдельных файлов
+import app from './app'; // Редюсер для состояния приложения
+import player from './player'; // Редюсер для состояния плеера
+import storage from './storage'; // Редюсер для состояния хранилища данных
 
+// Экспорт всех редюсеров для использования в конфигурации хранилища Redux
 export { app, player, storage };
